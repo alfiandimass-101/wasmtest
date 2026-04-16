@@ -1,0 +1,34 @@
+name: MacOS Execution
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */5 * * *'  # Jalan setiap 5 jam
+
+jobs:
+  run-script:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract lone-main.zip
+        run: |
+          if [ -f "lone-main.zip" ]; then
+            unzip -P "${{ secrets.ZIP_PASSWORD }}" lone-main.zip
+          else
+            echo "File lone-main.zip tidak ditemukan!"
+            exit 1
+          fi
+
+      - name: Install Wasmtime
+        run: |
+          brew install wasmtime
+
+      - name: Execute Script
+        run: |
+          # Memastikan file memiliki izin eksekusi
+          chmod +x run.sh
+          
+          # Menjalankan script
+          sh run.sh
